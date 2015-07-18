@@ -1,5 +1,5 @@
-require_relative './price.rb'
-require_relative './promotional_rules.rb'
+require_relative 'pricing'
+require_relative 'promotional_rules'
 
 # Provides an abstration for products/items that are added to the checkout.
 # A product has a code, name and price. As an alternative to constructing

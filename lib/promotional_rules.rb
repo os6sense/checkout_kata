@@ -11,6 +11,10 @@
 #
 # Note that this is a base class, please see ProductRule and TransactionRule
 # for specific examples.
+
+# Both trigger and discount should be callable accepting two parameters, the
+# first parameter depends on the type of PromotionalRule, the second parameter
+# is an instance of Purchases containing a list of all the iterms purchased.
 class PromotionalRule
   attr_reader :trigger,
               :discount
@@ -35,6 +39,15 @@ end
 # Rule which applies only to products. ProductRule adds a product parameter
 # as the first parameter which can be used to disamlbiguate it from either
 # rules for other products, or rules of a different type (e.g. TransactionRule)
+#
+# ==== Example
+#   # The following example returns a discount equal to the product price
+#   # minus 850p per product, if more than 2 of the product have been scanned.
+#   trigger = -> (product, _) { product.quantity >= 2 }
+#   discount = -> (product, _) do
+#     -1 * (product.price - (Money.new(850) * product.quantity))
+#   end
+#   ProductRule.new(Products.find_by_id('001'), trigger, &discount)
 class ProductRule < PromotionalRule
   attr_reader :product
 
@@ -45,37 +58,38 @@ class ProductRule < PromotionalRule
 end
 
 # PromotionalRule which applies to the entire basket/transaction
+#
 # ==== Example
-
+#
+#   # The following example would return a 10% discount on tansactions with
+#   # a value over 60 pounds.
+#   trigger = -> (t_value, _) { t_value > Money.new(6_000) }
+#   discount = -> (t_value, _) { -1 * (t_value / 10) }
+#   TransactionRule.new(trigger, &discount)
 class TransactionRule < PromotionalRule; end
 
 # Container class for all the rules
 class PromotionalRules
-  attr_reader :products
-  attr_reader :transactions
-
   def initialize
     @products = Hash.new { |h, k| h[k] = [] }
     @transactions = []
   end
 
+  # Add a rule
   def add(rule)
-    if rule.respond_to?(:product)
-      @products[rule.product] << rule
-    else
-      @transactions << rule
-    end
+    @products[key(rule)] << rule
   end
 
-  def apply(p_or_t, purchases)
-    if p_or_t.respond_to?(:product)
-      apply_rule(@products[p_or_t.product], p_or_t, purchases)
-    else
-      apply_rule(@transactions, p_or_t, purchases)
-    end
+  # Apply the rule
+  def apply(elem, purchases)
+    apply_rule(@products[key(elem)], elem, purchases)
   end
 
   private
+
+  def key(e)
+    e.respond_to?(:product) ? e.product : :transaction
+  end
 
   def apply_rule(rule, purchase, purchases)
     rule.inject(0) { |a, e| a + e.apply(purchase, purchases) }

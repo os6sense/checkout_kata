@@ -1,8 +1,9 @@
 # === DESCRIPTION
-An implementation of the Checkout problem in Ruby.
+An implementation of the Checkout problem/kata in Ruby.
 
 # === INSTALLATION
 clone this repositiory and run
+
   bundle install
 
 # === RUNNING

@@ -1,7 +1,7 @@
 require_relative 'purchases'
 require_relative 'product'
 require_relative 'promotional_rules'
-require_relative 'price'
+require_relative 'pricing'
 
 # A Class to support the generation of a total based on promotional rules
 # and the items purchased. items are expected to be instances of +Product+,
@@ -44,11 +44,27 @@ class Checkout
   # Calculate the total price of the transaction based on the products scanned
   # and any PromotionalRules applying to the individual products and
   # the transaction as a whole.
-  def total(base_cost = Money.new(0))
+  #
+  # ==== Params
+  # * +base_cost+:: An amount to which the cost of purchases will be added to.
+  #                 (default: 0)
+  def total(base_cost = 0)
+    base_cost = Money.new(base_cost)
+
     base_cost += @purchases.each_value.inject(base_cost) do |a, e|
-      a + e.price + @rules.apply(e, @purchases)
+      a + e.price + product_discount(e)
     end
 
-    base_cost + @rules.apply(base_cost, @purchases)
+    base_cost + transaction_discounts(base_cost)
+  end
+
+  private
+
+  def product_discount(purchase)
+    @rules.apply(purchase, @purchases)
+  end
+
+  def transaction_discounts(cost)
+    @rules.apply(cost, @purchases)
   end
 end
