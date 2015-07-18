@@ -1,48 +1,43 @@
 require_relative '../lib/promotional_rules.rb'
 
-describe PromotionalRules do
-  let(:product) { double("Product") }
+describe PromotionalRule do
+  let(:probe) { -> {} }
 
   describe '#initialize' do
-    context 'when a no parameter is provided' do
-      it 'raises an ArgumentErro' do
-        expect { described_class.new }.to raise_error ArgumentError
+    let(:trigger) { -> {} }
+
+    context 'when no block is provided' do
+      it 'raises an ArgumentError' do
+        expect { described_class.new(trigger) }.to raise_error ArgumentError
       end
     end
-    context 'when a parameter is provided' do
-      context 'when no block is provided' do
-        it 'raises an ArgumentError' do
-          expect { described_class.new(product) }.to raise_error ArgumentError
-        end
+
+    context 'when a block is provided' do
+      subject { described_class.new(trigger, &probe) }
+      it 'creates an instance of the class' do
+        expect(subject).to be_a described_class
       end
-
-      context 'when a block is provided' do
-        let(:probe) { lambda{} }
-        subject { described_class.new(product, &probe) }
-
-        it 'sets the product attribute to the parameter' do
-          expect(subject).to be_a described_class
-        end
-        it 'sets the product attibute to product' do
-          expect(subject.product).to eq product
-        end
-        it 'sets the block attibute to the supplied block' do
-          expect(subject.block).to eq probe
-        end
-
+      it 'sets the discount attibute to the supplied block' do
+        expect(subject.discount).to eq probe
       end
     end
   end
 
-  describe '#apply' do
-    let(:probe) { lambda{} }
+  describe '#applies_to?' do
+    let(:trigger) { -> (p, _b) { p.code == '001' ? true : false } }
+    subject { described_class.new(trigger, &probe) }
 
-    subject { described_class.new(product, &probe) }
+    context 'when the trigger rule applies to the product' do
+      let(:product) { instance_double('Product',  code: '001') }
+      it 'returns the rule' do
+        expect(subject.applies_to?(product, nil)).to eq true
+      end
+    end
 
-    context 'when passed a basket' do
-      it 'calls the stored block' do
-          #expect(probe).to receive :call
-          #subject.
+    context 'when the trigger rule does not apply to the product' do
+      let(:product) { instance_double('Product',  code: 'xx001') }
+      it 'returns nil' do
+        expect(subject.applies_to?(product, nil)).to eq false
       end
     end
   end

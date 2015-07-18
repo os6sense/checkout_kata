@@ -5,7 +5,7 @@ gem 'money'
 group :development do
   gem 'awesome_print'
   gem 'guard'
-  gem 'guard-rspec'
+  gem 'guard-rspec', require: false
   gem 'rack-livereload'
   gem 'byebug'
 end

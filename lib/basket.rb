@@ -1,2 +1,0 @@
-class Basket < Array
-end
