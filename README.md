@@ -1,21 +1,25 @@
-# === DESCRIPTION
+# DESCRIPTION
 An implementation of the Checkout problem/kata in Ruby.
 
-# === INSTALLATION
+# INSTALLATION
 clone this repositiory and run
 
   bundle install
 
-# === RUNNING
+# RUNNING
 
+  No executable or binstubs are supplied since that is not specified as 
+  part of the task, hence to run use 'rake' or 'rspec' without parameters.
 
-# ==== Problem definition
+# PROBLEM DEFINITION
 
-Product code | Name | Price
-----------------------------------------------------------
-001 | Travel Card Holder | £9.25
-002 | Personalised cufflinks | £45.00
-003 | Kids T-shirt | £19.95
+For an online store:
+
+Code | Name                   | Price
+-----|------------------------|--------
+001  | Travel Card Holder     | £9.25
+002  | Personalised cufflinks | £45.00
+003  | Kids T-shirt           | £19.95
 
 Our marketing team want to offer promotions as an incentive for
 our customers to purchase these items.
@@ -40,7 +44,9 @@ Test data
 ---------
 Basket: 001,002,003
 Total price expected: £66.78
+
 Basket: 001,003,001
 Total price expected: £36.95
+
 Basket: 001,002,001,003
 Total price expected: £73.76
